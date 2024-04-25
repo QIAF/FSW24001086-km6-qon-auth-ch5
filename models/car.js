@@ -11,16 +11,31 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      car.belongsTo(models.shop,{
+        fereignKey: {
+          name: "shopId",
+        },
+      });
+      car.belongsTo(model.user, {
+        fereignKey: {
+          name: "userId",
+        },
+      });
     }
   }
   car.init({
     name: DataTypes.STRING,
     price: DataTypes.FLOAT,
     stock: DataTypes.INTEGER,
-    imageUrl: DataTypes.TEXT,
-    userId: DataTypes.INTEGER,
-    shopId: DataTypes.INTEGER
-  }, {
+    imageUrl: DataTypes.ARRAY(DataTypes.TEXT),
+    userId: {
+      type: DataTypes.INTEGER,
+    },
+    shopId: {
+      type: DataTypes.INTEGER,
+    },
+  }, 
+  {
     sequelize,
     modelName: 'car',
   });
