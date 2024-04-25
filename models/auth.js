@@ -11,14 +11,31 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      auth.belonngTo(models.User,{
+        foreignKey:{
+          name: "userId",
+          allowNull: false,
+        },
+      });
     }
   }
   auth.init({
-    email: DataTypes.STRING,
-    password: DataTypes.STRING
-  }, {
+    email: {
+      type: DataTypes.STRING,
+      allowNull:false,
+      validate: {
+        isEmail: {
+          msg: 'Please enter a valid email',
+        },
+      },
+    },
+    password: DataTypes.STRING,
+    userId: DataTypes.INTEGER,
+  },
+  {
     sequelize,
     modelName: 'auth',
-  });
+  }
+);
   return auth;
 };
