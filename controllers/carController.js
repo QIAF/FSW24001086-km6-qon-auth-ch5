@@ -1,244 +1,157 @@
-const { Car, Shop, User } = require("../models");
-const imagekit = require("../lib/imagekit");
-const ApiError = require("../utils/apiError");
-const { Op } = require("sequelize");
+require('dotenv/config');
 
-const createCar = async (req, res, next) => {
-  const { name, price, stock } = req.body;
-  const files = req.files;
-  let images = [];
+const { randomUUID } = require('crypto');
+const { Op } = require('sequelize');
+const { cars } = require('../models');
+const handleUploadImage = require('../utils/handleUpload');
+// const { createDataValidation, updateDataValidation } = require('../validations/car-validation');
 
-  try {
-    if (files) {
-      await Promise.all(
-        files.map(async (file) => {
-          const split = file.originalname.split(".");
-          const extension = split[split.length - 1];
+const imageKit = require('../libs/imagekit');
 
-          const uploadedImage = await imagekit.upload({
-            file: file.buffer,
-            fileName: `IMG-${Date.now()}.${extension}`,
-          });
-          images.push(uploadedImage.url);
-        })
-      );
-    }
+const getAllCars = async (req, res) => {
+	try {
+		const allCars = await cars.findAll();
 
-    let shopId;
-    if (req.user.role === "Admin") {
-      if (!req.body.shopId) {
-        return next(
-          new ApiError(
-            "The 'shopId' field is required to create a car. Please provide the 'shopId' in the request body.",
-            400
-          )
-        );
-      }
-      shopId = req.body.shopId;
-    } else {
-      shopId = req.user.shopId;
-    }
+		res.status(200).json({
+			status: 'OK',
+			totalData: allCars.length,
+			requestAt: req.requestTime,
+			data: allCars,
+		});
+	} catch (error) {
+		res.status(500).json({
+			status: 'FAILED',
+			message: error.message,
+		});
+	}
+};
+const getCarsById = async (req, res) => {
+	try {
+		const id = req.params.id;
+		const car = await cars.findByPk(id);
 
-    const newCar = await Car.create({
-      name,
-      price,
-      stock,
-      imageUrl: images,
-      userId: req.user.id,
-      shopId,
-    });
-
-    res.status(200).json({
-      status: "Success",
-      data: {
-        newCar,
-      },
-    });
-  } catch (err) {
-    next(new ApiError(err.message, 400));
-  }
+		if (!car) {
+			throw new Error('Car Not Found!');
+		}
+		res.status(200).json({
+			status: 'OK',
+			data: car,
+		});
+	} catch (error) {
+		res.status(404).json({
+			status: 'FAILED',
+			message: error.message,
+		});
+	}
 };
 
-const findCars = async (req, res, next) => {
-  try {
-    const { carName, username, shop, page, limit } = req.query;
-    const condition = {};
-    if (carName) condition.name = { [Op.iLike]: `%${carName}%` };
+const createCar = async (req, res) => {
+	try {
+		const data = req.body;
+		const file = req.file;
+        console.log(file);
 
-    const includeShopCondition = {};
-    if (shop) includeShopCondition.name = { [Op.iLike]: `%${shop}%` };
+		if (file) {
+			const strFile = file.buffer.toString('base64');
 
-    const includeUserCondition = {};
-    if (username) includeUserCondition.name = { [Op.iLike]: `${username}%` };
+			const { url, fileId } = await handleUploadImage(file, strFile);
+            console.log(url);
 
-    const pageNum = parseInt(page) || 1;
-    const pageSize = parseInt(limit) || 10;
-    const offset = (pageNum - 1) * pageSize;
 
-    let whereCondition = condition;
+			data.imageUrl = url;
+		}
+        data.createdBy = 'qonit';
+        data.updatedBy = '';
+        data.deleteBy = '';
+        data.createdAt= new Date();
+        data.updatedAt = new Date();
 
-    if (req.user.role === "Admin") {
-      whereCondition;
-    } else {
-      whereCondition = {
-        ...condition,
-        shopId: req.user.shopId,
-      };
-    }
+		const car = await cars.create(data);
 
-    const totalCount = await Car.count({ where: whereCondition });
-
-    const cars = await Car.findAll({
-      include: [
-        {
-          model: Shop,
-          where: includeShopCondition,
-          attributes: ["id", "name"],
-        },
-        {
-          model: User,
-          attributes: ["name"],
-        },
-      ],
-      where: whereCondition,
-      order: [["id", "ASC"]],
-      attributes: ["id", "name", "price", "stock", "createdAt", "updatedAt"],
-      limit: pageSize,
-      offset: offset,
-    });
-
-    const totalPages = Math.ceil(totalCount / pageSize);
-
-    res.status(200).json({
-      status: "Success",
-      data: {
-        cars,
-        pagination: {
-          totalData: totalCount,
-          totalPages,
-          pageNum,
-          pageSize,
-        },
-      },
-    });
-  } catch (err) {
-    next(new ApiError(err.message, 400));
-  }
+		res.status(201).json({
+			status: 'OK',
+			message: 'Data Berhasil Disimpan!',
+			data: car,
+		});
+	} catch (error) {
+		res.status(400).json({
+			status: 'FAIL',
+			message: error.message,
+		});
+	}
 };
 
-const findCarById = async (req, res, next) => {
-  try {
-    const car = await Car.findOne({
-      where: {
-        id: req.params.id,
-      },
-    });
+const editCar = async (req, res) => {
+	try {
+        const car = await cars.findByPk(req.params.id);
+		const data = req.body;
+		const file = req.file;
 
-    if (!car) {
-      return next(
-        new ApiError(`cart with this ${req.params.id} is not exist`, 404)
-      );
-    }
+		if (file) {
+			console.log("file")
+			const strFile = file.buffer.toString('base64');
+			const { url, fileId } = await handleUploadImage(file, strFile);
 
-    if (car.shopId !== req.user.shopId) {
-      return next(new ApiError("Your shop is not owner of this car", 401));
-    }
+			data.imageUrl = url;
 
-    res.status(200).json({
-      status: "Success",
-      data: {
-        car,
-      },
-    });
-  } catch (err) {
-    next(new ApiError(err.message, 400));
-  }
+		} else {
+			data.imageUrl = car.imageUrl;
+		}
+		console.log(data);
+
+		await cars.update(data, {
+			where: {
+				id: req.params.id,
+			},
+		});
+
+		res.status(200).json({
+			status: 'OK',
+			message: 'Data Berhasil Diperbarui!',
+			data: req.body,
+		});
+	} catch (error) {
+		res.status(400).json({
+			status: 'FAIL',
+			message: error.message,
+		});
+	}
 };
 
-const UpdateCar = async (req, res, next) => {
-  const { name, price, stock } = req.body;
-  const files = req.files;
-  let images = [];
+const deleteCar = async (req, res) => {
+	try {
+		const car = await cars.findByPk(req.params.id);
 
-  try {
-    if (files) {
-      await Promise.all(
-        files.map(async (file) => {
-          const split = file.originalname.split(".");
-          const extension = split[split.length - 1];
+		if (!car) {
+			throw Error('Car Not Found!');
+		}
 
-          const uploadedImage = await imagekit.upload({
-            file: file.buffer,
-            fileName: `IMG-${Date.now()}.${extension}`,
-          });
-          images.push(uploadedImage.url);
-        })
-      );
-    }
+		// if (car.imageUrl != '' || car.imageUrl_id != '') {
+		// 	await imageKit.deleteFile(car.imageUrl_id);
+		// }
 
-    let shopId;
-    if (req.user.role === "Admin") {
-      if (!req.body.shopId) {
-        return next(
-          new ApiError(
-            "The 'shopId' field is required to create a car. Please provide the 'shopId' in the request body.",
-            400
-          )
-        );
-      }
-      shopId = req.body.shopId;
-    } else {
-      shopId = req.user.shopId;
-    }
+		await cars.destroy({
+			where: {
+				id: req.params.id,
+			},
+		});
 
-    await Car.update(
-      {
-        name,
-        price,
-        stock,
-        imageUrl: images,
-        userId: req.user.id,
-        shopId,
-      },
-      {
-        where: {
-          id: req.params.id,
-        },
-      }
-    );
-
-    res.status(200).json({
-      status: "Success",
-      message: "Success update car",
-    });
-  } catch (err) {
-    next(new ApiError(err.message, 400));
-  }
-};
-
-const deleteCar = async (req, res, next) => {
-  const id = req.params.id;
-
-  try {
-    await Car.destroy({
-      where: {
-        id,
-      },
-    });
-
-    res.status(200).json({
-      status: "Success",
-      message: "Success delete car",
-    });
-  } catch (err) {
-    next(new ApiError(err.message, 400));
-  }
+		res.status(200).json({
+			status: 'OK',
+			message: 'Data Berhasil Dihapus!',
+		});
+	} catch (error) {
+		res.status(400).json({
+			status: 'FAIL',
+			message: error.message,
+		});
+	}
 };
 
 module.exports = {
-  createCar,
-  findCars,
-  findCarById,
-  UpdateCar,
-  deleteCar,
+	getAllCars,
+	getCarsById,
+	createCar,
+	editCar,
+	deleteCar,
 };
