@@ -2,7 +2,8 @@ require('dotenv/config');
 const { randomUUID } = require('crypto');
 const { Op, where } = require('sequelize');
 const bcrypt = require("bcrypt");
-const { cars, auth, users } = require('../models');
+const { auth, users } = require('../models');
+const jwt = require('jsonwebtoken');
 const handleUploadImage = require('../utils/handleUpload');
 // const { createDataValidation, updateDataValidation } = require('../validations/car-validation');
 
@@ -35,7 +36,11 @@ const register = async (req, res) => {
 		res.status(201).json({
 			status: 'OK',
 			data: {
-				newUser,
+				id: newUser.id,
+				name: newUser.name,
+				address: newUser.address,
+				role: newUser.role,
+				age: newUser.age,
 				email,
 			},
 		});
@@ -65,8 +70,8 @@ const login = async (req, res, next) => {
       const token = jwt.sign(
         {
           id: user.userId,
-          username: user.User.name,
-          role: user.User.role,
+          username: user.name,
+          role: user.role,
           email: user.email,
         },
         process.env.JWT_SECRET
@@ -78,10 +83,10 @@ const login = async (req, res, next) => {
         data: token,
       });
     } else {
-      next(new ApiError("email atau password salah", 400));
+      return next (createHttpError(400, {message:"email atau password salah"}));
     }
   } catch (err) {
-    next(new ApiError(err.message, 500));
+    return next(createHttpError(500, {message:err.message}));
   }
 };
 const userLoggedIn = async (req, res, next) => {
@@ -97,15 +102,13 @@ const userLoggedIn = async (req, res, next) => {
 					id: user.id,
 					name: user.name,
 					role: user.role,
-					createdAt: user.createdAt,
-					updatedAt: user.updatedAt,
+
 				},
 				auth: {
 					id:user.auth.id,
 					userId: user.auth.userId,
-					email: user.auth.password,
-					createdAt: user.auth,createdAt,
-					updatedAt: user.auth.updatedAt,
+					email: user.auth.email,
+					password: user.auth.password
 				},
 			},
 		})
