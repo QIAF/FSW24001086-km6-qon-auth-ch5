@@ -71,26 +71,26 @@
 		"/api/v1/users/register": {
 			"post": {
 				"tags": ["auth"],
-				"summary": "register user by superadmin",
-				"description": "register user with the role superadmin/admin/member",
-				"security": [
-					{
-						"bearerAuth": []
-					}
-				],
+				"summary": "register user member",
+				"description": "register user with the role member",
 				"requestBody": {
 					"content": {
 						"application/json": {
 							"schema": {
 								"type": "object",
 								"properties": {
-									"id": {
-										"type": "integer",
-										"description": "Auto Generated ID"
-									},
-									"name": {
+										"name": {
 										"type": "string",
 										"description": "user name"
+									},
+									"age":{
+										"type": "integer",
+										"description": "age member"
+	
+									},
+									"address":{
+										"type": "string",
+										"description": "member address"
 									},
 									"email": {
 										"type": "string",
@@ -134,8 +134,8 @@
 		"/api/v1/users/admin/register": {
 			"post": {
 				"tags": ["auth"],
-				"summary": "register member by admin",
-				"description": "register user with the role member for admin",
+				"summary": "register admin by superadmin",
+				"description": "register user with the role admin for superadmin",
 				"security": [
 					{
 						"bearerAuth": []
@@ -147,13 +147,17 @@
 							"schema": {
 								"type": "object",
 								"properties": {
-									"id": {
-										"type": "string",
-										"description": "Auto Generated ID"
-									},
 									"name": {
+									"type": "string",
+									"description": "user name"
+									},
+									"age":{
+										"type": "integer",
+										"description": "age member"
+									},
+									"address":{
 										"type": "string",
-										"description": "user name"
+										"description": "member address"
 									},
 									"email": {
 										"type": "string",
@@ -162,7 +166,7 @@
 									},
 									"role": {
 										"type": "string",
-										"description": "user role allowed [member]",
+										"description": "user role allowed: [superadmin, admin, member]",
 										"enum": ["superadmin", "admin", "member"]
 									},
 									"password": {
@@ -260,11 +264,22 @@
 				}
 			}
 		},
-		"/api/v1/users/id": {
+		"/api/v1/users/{id}": {
 			"patch": {
 				"tags": ["auth"],
 				"summary": "update user loggedIn as superadmin, admin, member",
 				"description": "update user loggedIn with the role member",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"description": "User ID",
+						"schema": {
+							"type": "integer"
+						}
+					}
+				],
 				"security": [
 					{
 						"bearerAuth": []
@@ -276,13 +291,17 @@
 							"schema": {
 								"type": "object",
 								"properties": {
-									"id": {
-										"type": "string",
-										"description": "Auto Generated ID"
-									},
 									"name": {
+									"type": "string",
+									"description": "user name"
+									},
+									"age":{
+										"type": "integer",
+										"description": "age member"
+									},
+									"address":{
 										"type": "string",
-										"description": "user name"
+										"description": "member address"
 									},
 									"email": {
 										"type": "string",
@@ -291,8 +310,8 @@
 									},
 									"role": {
 										"type": "string",
-										"description": "user role member",
-										"enum": ["member"]
+										"description": "user role allowed: [superadmin, admin, member]",
+										"enum": ["superadmin", "admin", "member"]
 									},
 									"password": {
 										"type": "string",
@@ -326,6 +345,17 @@
 				"tags": ["auth"],
 				"summary": "delete user loggedIn",
 				"description": "delete user data logged In",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"description": "User ID",
+						"schema": {
+							"type": "integer"
+						}
+					}
+				],
 				"security": [
 					{
 						"bearerAuth": []
@@ -347,11 +377,22 @@
 				}
 			}
 		},
-		"/api/v1/users/update": {
+		"/api/v1/users/update/{id}": {
 			"patch": {
 				"tags": ["auth"],
 				"summary": "update user loggedIn as admin or superadmin",
 				"description": "update user loggedIn with the role admin and member",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"description": "User ID",
+						"schema": {
+							"type": "integer"
+						}
+					}
+				],
 				"security": [
 					{
 						"bearerAuth": []
@@ -363,13 +404,17 @@
 							"schema": {
 								"type": "object",
 								"properties": {
-									"id": {
-										"type": "string",
-										"description": "Auto Generated ID"
-									},
 									"name": {
+									"type": "string",
+									"description": "user name"
+									},
+									"age":{
+										"type": "integer",
+										"description": "age member"
+									},
+									"address":{
 										"type": "string",
-										"description": "user name"
+										"description": "member address"
 									},
 									"email": {
 										"type": "string",
@@ -378,8 +423,8 @@
 									},
 									"role": {
 										"type": "string",
-										"description": "user role admin and member",
-										"enum": ["admin", "member"]
+										"description": "user role allowed: [superadmin, admin, member]",
+										"enum": ["superadmin", "admin", "member"]
 									},
 									"password": {
 										"type": "string",
@@ -411,12 +456,17 @@
 			}
 		},
 
-
-		"/api/v1/cars": {
+		"/api/v1/cars/create": {
 			"get": {
 				"summary": "get all car data",
 				"description": "Get all cars data",
 				"tags": ["cars"],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+
 				"responses": {
 					"200": {
 						"description": "OK"
@@ -446,47 +496,23 @@
 						"multipart/form-data": {
 							"schema": {
 								"type": "object",
-                                "properties": {
-									"id": {
-										"type": "integer",
-										"description": "Auto Generated ID"
-									},
+								"properties": {
 									"model": {
 										"type": "string",
-										"description": "Car Plate"
+										"description": "Car model"
 									},
                                     "price":{
                                         "type": "number",
                                         "description": "Car Price"
                                     },
-									"imageUrl": {
-										"type": "array",
-										"description": "Car Image to ImageKit"
+									"type": {
+										"type": "string",
+										"description": "car type"
 									},
-                                    "createdAt": {
-                                        "type": "string",
-                                        "description": "created At"
-                                    },
-                                    "createdBy": {
-                                        "type": "string",
-                                        "description": "created At"
-                                    },
-                                    "deletedBy": {
-                                        "type": "string",
-                                        "description": "deletedBy At"
-                                    },
-                                    "deletedAt": {
-                                        "type": "string",
-                                        "description": "created At"
-                                    },
-                                    "updatedAt": {
-                                        "type": "date",
-                                        "description": "Updated At"
-                                    },
-                                    "updated": {
-                                        "type": "date",
-                                        "description": "Updated At"
-                                    }
+									"image": {
+										"type": "file",
+										"description": "Car Image to ImageKit"
+									}
 								}
 							}
 						}
@@ -546,6 +572,17 @@
 				"tags": ["cars"],
 				"summary": "update car data",
 				"description": "Update car data by ID",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"description": "Cars ID",
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
 				"security": [
 					{
 						"bearerAuth": []
@@ -557,46 +594,22 @@
 							"schema": {
 								"type": "object",
                                 "properties": {
-									"id": {
-										"type": "integer",
-										"description": "Auto Generated ID"
-									},
 									"model": {
 										"type": "string",
-										"description": "Car Plate"
+										"description": "Car model"
 									},
                                     "price":{
                                         "type": "number",
                                         "description": "Car Price"
                                     },
-									"imageUrl": {
-										"type": "array",
-										"description": "Car Image to ImageKit"
+									"type": {
+										"type": "string",
+										"description": "car type"
 									},
-                                    "createdAt": {
-                                        "type": "string",
-                                        "description": "created At"
-                                    },
-                                    "createdBy": {
-                                        "type": "string",
-                                        "description": "created At"
-                                    },
-                                    "deletedBy": {
-                                        "type": "string",
-                                        "description": "deletedBy At"
-                                    },
-                                    "deletedAt": {
-                                        "type": "string",
-                                        "description": "created At"
-                                    },
-                                    "updatedAt": {
-                                        "type": "date",
-                                        "description": "Updated At"
-                                    },
-                                    "updatedBy": {
-                                        "type": "date",
-                                        "description": "Updated At"
-                                    }
+									"image": {
+										"type": "file",
+										"description": "Car Image to ImageKit"
+									}
 								}
 							}
 						}
@@ -624,32 +637,17 @@
 				"tags": ["cars"],
 				"summary": "delete car data",
 				"description": "Delete car data by ID",
-				"security": [
+				"parameters": [
 					{
-						"bearerAuth": []
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"description": "Cars ID",
+						"schema": {
+							"type": "string"
+						}
 					}
 				],
-				"responses": {
-					"200": {
-						"description": "OK"
-					},
-					"400": {
-						"description": "Bad Request"
-					},
-					"404": {
-						"description": "Not Found"
-					},
-					"500": {
-						"description": "Internal Server Error"
-					}
-				}
-			}
-		},
-		"/api/v1/deleted-cars": {
-			"get": {
-				"tags": ["deleted cars"],
-				"summary": "get all deleted car data",
-				"description": "Get all of deleted car data",
 				"security": [
 					{
 						"bearerAuth": []

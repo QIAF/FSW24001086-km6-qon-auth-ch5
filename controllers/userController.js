@@ -5,11 +5,9 @@ const bcrypt = require("bcrypt");
 const { auth, users } = require('../models');
 const jwt = require('jsonwebtoken');
 const handleUploadImage = require('../utils/handleUpload');
-// const { createDataValidation, updateDataValidation } = require('../validations/car-validation');
 
 const imageKit = require('../libs/imagekit');
 const createHttpError = require('http-errors');
-// const { when } = require('joi');
 
 const register = async (req, res) => {
 	try {
@@ -75,7 +73,6 @@ const login = async (req, res, next) => {
         },
         process.env.JWT_SECRET
       );
-
       res.status(200).json({
         status: "Success",
         message: "Login Seccess",
@@ -176,7 +173,7 @@ const updateUser = async (req, res, next) => {
 }
 const deleteUser = async (req, res, next) => {
 	try{
-		const user = await user.findOne({
+		const user = await users.findOne({
 			where:{
 				id: req.params.id,
 			},
@@ -184,7 +181,7 @@ const deleteUser = async (req, res, next) => {
 		if (!user){
 			return next (createHttpError(404, "user not found"));
 		}
-		await user.destroy ({
+		await users.destroy ({
 			where:{
 				id: req.params.id,
 			},
@@ -197,6 +194,8 @@ const deleteUser = async (req, res, next) => {
 	return next (createHttpError(400));
 	}
 };
+
+
 module.exports = {
 	register,
 	login,

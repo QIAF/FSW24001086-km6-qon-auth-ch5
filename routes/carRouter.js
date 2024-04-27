@@ -14,7 +14,7 @@ const router = require("express").Router();
 router.get("/", Authenticate, CheckRole('superadmin','admin', 'member'), getAllCars);
 router.get("/:id", Authenticate, CheckRole('superadmin','admin','member'), getCarsById);
 router.post('/create', Authenticate, CheckRole('superadmin'), upload.array ('image'), Validator(carSchema), createCar);
-router.patch('/update/:id', Authenticate, CheckRole("superadmin"), upload.array ('image'),Validator(carUpdateSchema), editCar);
-router.delete('/delete/:id', Authenticate, CheckRole('superadmin'), deleteCar);
+router.patch('/:id', Authenticate, CheckRole("superadmin"), upload.array ('image'),Validator(carUpdateSchema), editCar);
+router.delete('/:id', Authenticate, CheckRole('superadmin'), deleteCar);
 
 module.exports = router;
