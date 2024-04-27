@@ -1,14 +1,14 @@
-const ApiError = require('http-error');
+const createHttpError = require('http-errors');
 
 const checkRole = (...roles) => {
   return async (req, res, next) => {
     try {
       if (!roles.includes(req.user.role)) {
-        next(new ApiError(`kamu tidak berkepentingan disini`, 403));
+        return next(createHttpError(403, {message:'you dont have an accsess'}));
       }
       next();
     } catch (err) {
-      next(new ApiError(err.message, 500));
+      return next(createHttpError( 500,{message:err.message}));
     }
   };
 };

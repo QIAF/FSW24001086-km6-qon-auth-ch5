@@ -28,14 +28,31 @@ module.exports = {
     const insertUsers = await queryInterface.bulkInsert("users", users, {
       returning: true,
     });
-    const password = [
-      "$2a$12$pU6nd0jlNVbD16I78CcEMeTnyX7EacB2R9hjQvhlwPPscyw0NaZsa",
-      "$2a$12$mT8A9t.nBnzwWDkl5HqXs.Bppw4Ei/iezCiuDhV9VJu0i6FPIvuf."
-    ]
+
+    const password = 'password';
+		const confirmPassword = password;
+
+		const saltRounds = 10;
+		const hashedPassword = bcrypt.hashSync(password, saltRounds);
+		const hashedConfirmPassword = bcrypt.hashSync(confirmPassword, saltRounds);
+
+    const userDataAuth = insertUsers.map((users)=>{
+      return {
+        userId: users.id,
+        email:`${users.role}@mail.com`,
+        password: hashedPassword,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+    });
+    const userAuth = await queryInterface.bulkInsert('auths', userDataAuth, {
+      returning: true,
+    })
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable("users");
+    await queryInterface.bulkDelete('users', null, {returning: true});
+    await queryInterface.bulkDelete('auths', null,{ returning: true});
 
   }
 };

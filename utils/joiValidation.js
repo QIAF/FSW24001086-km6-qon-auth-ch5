@@ -37,7 +37,7 @@ const onlyMemberAndAdmin = Joi.object({
     age: Joi.number().max(30).required(),
     address: Joi.string().max(30).required(),
     email: Joi.string().email().required(),
-	role: Joi.string().required().valid('superadmin', 'admin', 'member'),
+	role: Joi.string().required().valid('member'),
 	password: Joi.string().min(8).alphanum().required(),
 	confirmPassword: Joi.any().valid(Joi.ref('password')).required().messages({
 		'any.only': 'Confirm password does not match password',
