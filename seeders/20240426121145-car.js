@@ -12,7 +12,7 @@ module.exports = {
         model: `Car ${i}`,
         type: `type ${i}`,
         price: `${i}0000`,
-        imageUrl: '',
+        imageUrl: '{}',
         createdBy: 'qonit',
         createdAt: new Date(),
         deletedBy: '',

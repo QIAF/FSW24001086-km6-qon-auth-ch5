@@ -19,7 +19,7 @@ module.exports = {
         type: Sequelize.FLOAT
       },
       imageUrl: {
-        type: Sequelize.STRING,
+        type: Sequelize.ARRAY(Sequelize.TEXT),
       },
       createdBy: {
         type: Sequelize.STRING,

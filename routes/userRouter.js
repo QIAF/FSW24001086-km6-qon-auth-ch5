@@ -6,9 +6,7 @@ const Authenticate = require('../midlewares/Authenticate');
 const CheckRole = require('../midlewares/checkRole');
 const { loginSchema,  onlySuperAdmin, onlySuperAdminUpdate, onlyMemberAndAdmin } = require('../utils/joiValidation');
 
-
 const { register, userLoggedIn, updateUser, deleteUser, login } = require("../controllers/userController");
-const upload = require('../libs/multer');
 
 
 router.post("/register",Validator(onlyMemberAndAdmin), register);

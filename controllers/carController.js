@@ -6,7 +6,7 @@ const { cars } = require('../models');
 const handleUploadImage = require('../utils/handleUpload');
 // const { createDataValidation, updateDataValidation } = require('../validations/car-validation');
 
-const imageKit = require('../libs/imagekit');
+const imagekit = require('../libs/imagekit');
 
 const getAllCars = async (req, res) => {
 	try {
@@ -48,29 +48,32 @@ const getCarsById = async (req, res) => {
 const createCar = async (req, res) => {
 	try {
 		const data = req.body;
-		const file = req.file;
-        console.log(file);
+		const files = req.files;
 
-		if (file) {
-			const strFile = file.buffer.toString('base64');
+		const images = {
+			imagesUrl: [],
+			imagesId: [],
+		};
 
-			const { url, fileId } = await handleUploadImage(file, strFile);
-            console.log(url);
+		 if (files) {
+			const { imagesUrl, imagesId } = await handleUploadImage(files);
 
+			images.imagesUrl = imagesUrl;
+			images.imagesId = imagesId;
+			}
 
-			data.imageUrl = url;
-		}
-        data.createdBy = 'qonit';
+        data.createdBy=req.user.name ;
         data.updatedBy = '';
         data.deleteBy = '';
+		data.imageUrl = images.imagesUrl;
         data.createdAt= new Date();
         data.updatedAt = new Date();
 
 		const car = await cars.create(data);
 
 		res.status(201).json({
-			status: 'OK',
-			message: 'Data Berhasil Disimpan!',
+			status: 'Success',
+			message: 'Success create data!',
 			data: car,
 		});
 	} catch (error) {
@@ -99,6 +102,8 @@ const editCar = async (req, res) => {
 		}
 		console.log(data);
 
+		data.updatedBy= req.user.name;
+
 		await cars.update(data, {
 			where: {
 				id: req.params.id,
@@ -107,7 +112,7 @@ const editCar = async (req, res) => {
 
 		res.status(200).json({
 			status: 'OK',
-			message: 'Data Berhasil Diperbarui!',
+			message: 'Update data success!',
 			data: req.body,
 		});
 	} catch (error) {
@@ -129,6 +134,14 @@ const deleteCar = async (req, res) => {
 		// if (car.imageUrl != '' || car.imageUrl_id != '') {
 		// 	await imageKit.deleteFile(car.imageUrl_id);
 		// }
+		await car.update({
+			deleteBy:req.user.name,
+
+		},{
+			where:{
+				id:req.params.id,
+			}
+		});
 
 		await cars.destroy({
 			where: {
@@ -138,7 +151,7 @@ const deleteCar = async (req, res) => {
 
 		res.status(200).json({
 			status: 'OK',
-			message: 'Data Berhasil Dihapus!',
+			message: 'Delete data success!',
 		});
 	} catch (error) {
 		res.status(400).json({

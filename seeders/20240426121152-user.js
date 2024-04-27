@@ -8,8 +8,8 @@ module.exports = {
     const users = [
       {
         name: "Qonit",
-        age:20,
-        address:"Jogja",
+        age: 20,
+        address: "Jogja",
         role: "superadmin",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -52,7 +52,7 @@ module.exports = {
 
   async down (queryInterface, Sequelize) {
     await queryInterface.bulkDelete('users', null, {returning: true});
-    await queryInterface.bulkDelete('auths', null,{ returning: true});
+    await queryInterface.bulkDelete('auths', null, { returning: true});
 
   }
 };

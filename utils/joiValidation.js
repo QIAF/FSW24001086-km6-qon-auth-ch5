@@ -73,18 +73,12 @@ const carSchema = Joi.object({
     model: Joi.string().max(30).required(),
     type: Joi.string().required(),
     price: Joi.number().required(),
-    imageUrl: Joi.string().required(),
-    createdAt: Joi.date().required(),
-    updateAt: Joi.date().required(),
 });
 
 const carUpdateSchema = Joi.object({
     model: Joi.string().max(30).required(),
     type: Joi.string().required(),
     price: Joi.number().required(),
-    imageUrl: Joi.string().required(),
-    createdAt: Joi.date().required(),
-    updateAt: Joi.date().required(),
 });
 
 module.exports = {

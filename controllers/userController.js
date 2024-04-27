@@ -79,11 +79,11 @@ const login = async (req, res, next) => {
 
       res.status(200).json({
         status: "Success",
-        message: "Berhasil login",
+        message: "Login Seccess",
         data: token,
       });
     } else {
-      return next (createHttpError(400, {message:"email atau password salah"}));
+      return next (createHttpError(400, {message:"email atau password is wrong"}));
     }
   } catch (err) {
     return next(createHttpError(500, {message:err.message}));

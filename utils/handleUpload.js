@@ -1,13 +1,25 @@
-const path = require('path');
-const imageKit = require('../libs/imagekit');
+const imagekit = require('../libs/imagekit');
 
-const handleUploadImage = async (file, strFile) => {
-	const { url, fileId } = await imageKit.upload({
-		fileName: Date.now() + path.extname(file.originalname),
-		file: strFile,
-	});
+const handleUploadImage = async (files) => {
+	let imagesUrl = [];
+	let imagesId = [];
 
-	return { url, fileId };
+	await Promise.all(
+		files.map(async (file) => {
+			const split = file.originalname.split('.');
+			const extension = split[split.length - 1];
+
+			const uploadedImage = await imagekit.upload({
+				file: file.buffer,
+				fileName: `user-${Date.now()}.${extension}`,
+			});
+
+			imagesUrl.push(uploadedImage.url);
+			imagesId.push(uploadedImage.fileId);
+		})
+	);
+
+	return { imagesUrl, imagesId };
 };
 
 module.exports = handleUploadImage;
