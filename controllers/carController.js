@@ -130,10 +130,6 @@ const deleteCar = async (req, res) => {
 		if (!car) {
 			throw Error('Car Not Found!');
 		}
-
-		// if (car.imageUrl != '' || car.imageUrl_id != '') {
-		// 	await imageKit.deleteFile(car.imageUrl_id);
-		// }
 		await car.update({
 			deleteBy:req.user.name,
 

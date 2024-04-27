@@ -11,7 +11,6 @@ const imageKit = require('../libs/imagekit');
 const createHttpError = require('http-errors');
 // const { when } = require('joi');
 
-
 const register = async (req, res) => {
 	try {
 		const {name, age, address, email, password, role, confirmPassword} = req.body;

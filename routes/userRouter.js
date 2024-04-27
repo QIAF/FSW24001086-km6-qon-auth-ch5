@@ -9,15 +9,16 @@ const { loginSchema,  onlySuperAdmin, onlySuperAdminUpdate, onlyMemberAndAdmin }
 const { register, userLoggedIn, updateUser, deleteUser, login } = require("../controllers/userController");
 
 
-router.post("/register",Validator(onlyMemberAndAdmin), register);
-router.get("/me", Authenticate, userLoggedIn );
-router.post('/login', Validator(loginSchema), login);
+router.post("/register",Validator(onlyMemberAndAdmin), register); 
+
+router.post('/login', Validator(loginSchema), login); //
+router.get("/me", Authenticate, userLoggedIn ); //
 
 router.get('/', Authenticate, CheckRole('superadmin', 'admin'));
 router.get('/', Authenticate, CheckRole('superadmin', 'admin'));
 
-router.post('/admin/register', Authenticate, CheckRole('superadmin'), Validator(onlySuperAdmin), register);
-router.patch('/:id', Authenticate, CheckRole('superadmin'), Validator(onlySuperAdminUpdate), updateUser);
+router.post('/admin/register', Authenticate, CheckRole('superadmin'), Validator(onlySuperAdmin), register);//
+router.patch('/update/:id', Authenticate, CheckRole('superadmin'), Validator(onlySuperAdminUpdate), updateUser); //
 router.delete('/:id', Authenticate, CheckRole('superadmin'), deleteUser);
 
 module.exports = router;
