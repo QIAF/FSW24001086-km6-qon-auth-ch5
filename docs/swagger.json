@@ -456,7 +456,7 @@
 			}
 		},
 
-		"/api/v1/cars/create": {
+		"/api/v1/cars": {
 			"get": {
 				"summary": "get all car data",
 				"description": "Get all cars data",

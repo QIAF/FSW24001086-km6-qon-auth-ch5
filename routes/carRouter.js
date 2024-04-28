@@ -13,7 +13,7 @@ const router = require("express").Router();
 
 router.get("/", Authenticate, CheckRole('superadmin','admin', 'member'), getAllCars);
 router.get("/:id", Authenticate, CheckRole('superadmin','admin','member'), getCarsById);
-router.post('/create', Authenticate, CheckRole('superadmin'), upload.array ('image'), Validator(carSchema), createCar);
+router.post('/', Authenticate, CheckRole('superadmin'), upload.array ('image'), Validator(carSchema), createCar);
 router.patch('/:id', Authenticate, CheckRole("superadmin"), upload.array ('image'),Validator(carUpdateSchema), editCar);
 router.delete('/:id', Authenticate, CheckRole('superadmin'), deleteCar);
 
